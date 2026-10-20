@@ -196,6 +196,21 @@ describe('PluginInventoryGateway', () => {
     expect((await inventory.list()).entries.some(entry => entry.entryId === pendingId)).toBe(false)
   })
 
+  it('reports an enabled entry whose module failed to import as failed', async () => {
+    const { ctx, inventory } = await harness()
+    // A specifier no module loader can resolve: `Entry._init()` catches the
+    // import error, logs it, and returns without creating a root Fiber. That
+    // entry did not load, so the projection must not call it unobserved.
+    const missing = 'dsh-inventory-test-missing-module'
+    const missingId = await ctx.loader.create({ name: missing })
+    expect((await inventory.list()).entries).toContainEqual({
+      entryId: missingId,
+      moduleName: missing,
+      enabled: true,
+      fiberPhase: 'failed',
+    })
+  })
+
   it('carries each composed preset with root-fiber states mapped to phases', async () => {
     const { ctx, inventory } = await harness()
     ctx.provide('agentPresets', {

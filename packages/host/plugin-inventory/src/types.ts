@@ -4,7 +4,11 @@ import type { PluginLocalizedMeta } from '@deepseek-ai/dsh-package-manifest'
 /** Stable Loader-tree identity of one configured plugin entry. */
 export type PluginEntryId = Branded<'PluginEntryId'>
 
-/** Lifecycle state of an entry's root Fiber, or null when it has no live root Fiber. */
+/**
+ * Lifecycle state of an entry's root Fiber. `null` means no live root Fiber
+ * exists; an enabled entry that never got one is `failed`, because the Loader
+ * reports a module import error by leaving the entry without a fiber.
+ */
 export type PluginFiberPhase =
   | 'pending'
   | 'loading'

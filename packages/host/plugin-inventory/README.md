@@ -29,7 +29,7 @@ Call `pluginInventory/list` when a client or settings page needs to show what is
 
 ### What a snapshot contains
 
-Each row is one non-group Loader entry: its entry id, the exact module specifier, the effective enablement (including disabled ancestor groups), and the current root Fiber phase. `pending` means the entry waits to load, `loading` that it is being read, `active` that it is running, `failed` that its fiber rejected, and `unloading` that it is being torn down; `null` means no live root Fiber exists at all. Structural group rows are skipped.
+Each row is one non-group Loader entry: its entry id, the exact module specifier, the effective enablement (including disabled ancestor groups), and the current root Fiber phase. `pending` means the entry waits to load, `loading` that it is being read, `active` that it is running, `failed` that its fiber rejected, and `unloading` that it is being torn down; `null` means no live root Fiber exists at all. An enabled entry that never got a root Fiber is reported as `failed`, not `null`: the Loader logs a module import error and returns without creating one, and that entry did not load. A disabled entry has no root Fiber by design and stays `null`. Structural group rows are skipped.
 
 Loader and preset rows can carry optional `meta` with a title, description, or metadata diagnostic. The Host returns available translations and literal fallbacks; the Client selects its language. Metadata diagnostics do not change enablement or fiber phase.
 

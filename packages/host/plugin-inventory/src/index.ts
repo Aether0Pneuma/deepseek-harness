@@ -90,7 +90,12 @@ export async function readPluginInventory(ctx: Context): Promise<PluginInventory
       entryId: pluginEntryId(entry.id),
       moduleName: entry.options.name,
       enabled: !entry.disabled,
-      fiberPhase: entry.fiber === undefined ? null : FIBER_PHASE[entry.fiber.state],
+      // An enabled entry with no root Fiber never loaded: the Loader logs the
+      // import error and leaves the entry without a fiber, so "no fiber" is a
+      // failure, not an unobserved row. A disabled entry legitimately has none.
+      fiberPhase: entry.fiber !== undefined
+        ? FIBER_PHASE[entry.fiber.state]
+        : entry.disabled ? null : 'failed',
       ...meta === undefined ? {} : { meta },
     })
   }
